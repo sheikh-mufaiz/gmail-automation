@@ -164,10 +164,10 @@ def main():
             msg = build_message(gmail_address, recipient, subject, body)
             try:
                 server.sendmail(gmail_address, recipient, msg.as_string())
-                print(f"[{i}/{len(recipients)}] SENT   -> {recipient}")
-                results.append((recipient, "SENT", ""))
+                print(f"[{i}/{len(recipients)}] ACCEPTED -> {recipient}")
+                results.append((recipient, "ACCEPTED", ""))
             except smtplib.SMTPException as exc:
-                print(f"[{i}/{len(recipients)}] FAILED -> {recipient} ({exc})")
+                print(f"[{i}/{len(recipients)}] FAILED   -> {recipient} ({exc})")
                 results.append((recipient, "FAILED", str(exc)))
 
             if i < len(recipients):
@@ -175,17 +175,22 @@ def main():
     finally:
         server.quit()
 
-    sent = [r for r in results if r[1] == "SENT"]
+    accepted = [r for r in results if r[1] == "ACCEPTED"]
     failed = [r for r in results if r[1] == "FAILED"]
 
     print("\n--- Status per email ---")
     for email, status, detail in results:
-        line = f"{status:6s} - {email}"
+        line = f"{status:8s} - {email}"
         if detail:
             line += f" ({detail})"
         print(line)
 
-    print(f"\nDone. Sent: {len(sent)}  Failed: {len(failed)}")
+    print(f"\nDone. Accepted by Gmail: {len(accepted)}  Failed immediately: {len(failed)}")
+    print(
+        "Note: ACCEPTED means Gmail's server agreed to deliver the message, not that it "
+        "was confirmed delivered. Addresses that don't actually exist usually bounce back "
+        "to your own inbox a little later, rather than failing here immediately."
+    )
 
     report_path = Path("email_status_report.csv")
     with report_path.open("w", newline="", encoding="utf-8") as f:

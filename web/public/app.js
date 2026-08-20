@@ -127,10 +127,10 @@ async function sendAndTrack(formData) {
         if (total > 0) {
           progressBarFill.style.width = `${Math.min(100, (processed / total) * 100)}%`;
         }
-        progressSummary.textContent = `Sent so far: ${processed}${total ? ` / ${total}` : ""}`;
+        progressSummary.textContent = `Processed so far: ${processed}${total ? ` / ${total}` : ""}`;
       } else if (event.type === "done") {
         progressBarFill.style.width = "100%";
-        progressSummary.textContent = `Done. Sent: ${event.sent}  Failed: ${event.failed}`;
+        progressSummary.textContent = `Done. Accepted by Gmail: ${event.accepted}  Rejected immediately: ${event.failed}`;
       }
     }
   }
@@ -152,7 +152,7 @@ function addLogRow(event) {
   email.textContent = event.email;
 
   const status = document.createElement("span");
-  status.className = `status ${event.status === "SENT" ? "sent" : "failed"}`;
+  status.className = `status ${event.status === "ACCEPTED" ? "sent" : "failed"}`;
   status.textContent = event.status + (event.detail ? ` — ${event.detail}` : "");
 
   li.appendChild(email);

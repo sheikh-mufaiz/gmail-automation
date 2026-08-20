@@ -9,8 +9,8 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB is generous for an email-
 
 type ProgressEvent =
   | { type: "info"; message: string }
-  | { type: "result"; email: string; status: "SENT" | "FAILED"; detail?: string }
-  | { type: "done"; sent: number; failed: number };
+  | { type: "result"; email: string; status: "ACCEPTED" | "FAILED"; detail?: string }
+  | { type: "done"; accepted: number; failed: number };
 
 export default {
   async fetch(request, env): Promise<Response> {
@@ -120,12 +120,12 @@ function buildProgressStream(
           status: "FAILED",
           detail: `Login failed - make sure you're using a Gmail App Password: ${errorMessage(err)}`,
         });
-        emit({ type: "done", sent: 0, failed: parsed.recipients.length });
+        emit({ type: "done", accepted: 0, failed: parsed.recipients.length });
         controller.close();
         return;
       }
 
-      let sent = 0;
+      let accepted = 0;
       let failed = 0;
 
       for (let i = 0; i < parsed.recipients.length; i++) {
@@ -137,8 +137,8 @@ function buildProgressStream(
             subject: creds.subject,
             text: creds.body,
           });
-          sent++;
-          emit({ type: "result", email: recipient, status: "SENT" });
+          accepted++;
+          emit({ type: "result", email: recipient, status: "ACCEPTED" });
         } catch (err) {
           failed++;
           emit({ type: "result", email: recipient, status: "FAILED", detail: errorMessage(err) });
@@ -153,7 +153,7 @@ function buildProgressStream(
         // Connection may already be closed by the server; nothing actionable here.
       });
 
-      emit({ type: "done", sent, failed });
+      emit({ type: "done", accepted, failed });
       controller.close();
     },
   });
