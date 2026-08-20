@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gmail Bulk Sender</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div class="logo">📧</div>
+      <div>
+        <h1>Gmail Bulk Sender</h1>
+        <p class="subtitle">Send one message to everyone in an Excel sheet, straight from your Gmail account.</p>
+      </div>
+    </header>
+
+    <main class="card">
+      <form id="send-form" novalidate>
+        <section class="field-group">
+          <h2>0. Access passphrase</h2>
+          <div class="field-row">
+            <label for="accessPassphrase">Passphrase (optional)</label>
+            <input type="password" id="accessPassphrase" name="accessPassphrase" placeholder="Only needed if the site owner set one up" autocomplete="off" />
+            <p class="hint">
+              Leave blank unless whoever deployed this Worker configured an
+              <code>ACCESS_PASSPHRASE</code> secret to restrict who can use it.
+            </p>
+          </div>
+        </section>
+
+        <section class="field-group">
+          <h2>1. Your Gmail account</h2>
+          <div class="field-row">
+            <label for="gmailAddress">Gmail address</label>
+            <input type="email" id="gmailAddress" name="gmailAddress" placeholder="you@gmail.com" required autocomplete="username" />
+          </div>
+          <div class="field-row">
+            <label for="appPassword">App password</label>
+            <input type="password" id="appPassword" name="appPassword" placeholder="16-character app password" required autocomplete="current-password" />
+            <p class="hint">
+              Not your normal password. Create one at
+              <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>
+              (requires 2-Step Verification). It's sent directly to this app's own server and used only to send your mail.
+            </p>
+          </div>
+        </section>
+
+        <section class="field-group">
+          <h2>2. Recipient list</h2>
+          <div class="field-row">
+            <label for="file">Excel file (.xlsx / .xls)</label>
+            <div class="file-drop" id="file-drop">
+              <input type="file" id="file" name="file" accept=".xlsx,.xls" required />
+              <span id="file-drop-label">Click to choose a file, or drag one here</span>
+            </div>
+            <p class="hint">Any sheet with email addresses works — a header row is optional. Duplicates and invalid entries are skipped automatically.</p>
+          </div>
+        </section>
+
+        <section class="field-group">
+          <h2>3. Your message</h2>
+          <div class="field-row">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" placeholder="Subject line" required />
+          </div>
+          <div class="field-row">
+            <label for="body">Body</label>
+            <textarea id="body" name="body" rows="8" placeholder="Type your message..." required></textarea>
+          </div>
+        </section>
+
+        <button type="submit" id="submit-btn" class="btn-primary">Review &amp; Send</button>
+      </form>
+
+      <div id="confirm-panel" class="confirm-panel hidden">
+        <h2>Confirm before sending</h2>
+        <dl class="confirm-summary">
+          <div><dt>From</dt><dd id="confirm-from"></dd></div>
+          <div><dt>Subject</dt><dd id="confirm-subject"></dd></div>
+        </dl>
+        <div class="confirm-body">
+          <dt>Body</dt>
+          <pre id="confirm-body"></pre>
+        </div>
+        <p class="warn" id="confirm-count"></p>
+        <div class="confirm-actions">
+          <button type="button" id="confirm-cancel" class="btn-secondary">Back</button>
+          <button type="button" id="confirm-send" class="btn-primary">Send now</button>
+        </div>
+      </div>
+
+      <div id="progress-panel" class="progress-panel hidden">
+        <h2>Sending…</h2>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+        <p id="progress-summary" class="progress-summary">Starting…</p>
+        <ul id="progress-log" class="progress-log"></ul>
+      </div>
+    </main>
+
+    <footer class="page-footer">
+      <p>Runs entirely on your own Cloudflare Worker. Nothing is stored — your app password and file only exist for the duration of the request.</p>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
